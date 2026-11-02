@@ -1,9 +1,21 @@
 from langchain_ollama import OllamaLLM
 from domain.state import PipelineState
+import logging
+import time
+import json
 
+logger = logging.getLogger("agentcore.writer")
 llm = OllamaLLM(model="llama3.2")
 
 def writer_node(state: PipelineState) -> dict:
+    trace_id = state["trace_id"]
+    start = time.time()
+    
+    logger.info(json.dumps({
+        "trace_id": trace_id,
+        "node": "writer",
+        "event": "started"
+    }))
     analist_result = state["analysis"]
     research_results = state["research_results"]
     prompt = f"""You are an expert content writer and storyteller. 
@@ -26,6 +38,13 @@ def writer_node(state: PipelineState) -> dict:
     
     try:
         result = llm.invoke(prompt)
+        elapsed = time.time() - start
+        logger.info(json.dumps({
+        "trace_id": trace_id,
+        "node": "writer", 
+        "event": "completed",
+        "elapsed_seconds": round(elapsed, 2)
+    }))
         return {
             "final_report": result,
             "current_step": "writing_done"

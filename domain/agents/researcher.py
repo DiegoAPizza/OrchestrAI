@@ -1,11 +1,22 @@
 from langchain_ollama import OllamaLLM
 from domain.state import PipelineState
+import logging
+import time
+import json
 
+logger = logging.getLogger("agentcore.researcher")
 llm = OllamaLLM(model="llama3.2")
 
 def researcher_node(state: PipelineState) -> dict:
     topic = state["topic"]
+    trace_id = state["trace_id"]
+    start = time.time()
     
+    logger.info(json.dumps({
+        "trace_id": trace_id,
+        "node": "researcher",
+        "event": "started"
+    }))
     prompt = f"""You are a research agent. 
 Research the following topic and provide key facts and information.
 Topic: {topic}
@@ -19,6 +30,13 @@ Research Summary:"""
     
     try:
         result = llm.invoke(prompt)
+        elapsed = time.time() - start
+        logger.info(json.dumps({
+        "trace_id": trace_id,
+        "node": "researcher", 
+        "event": "completed",
+        "elapsed_seconds": round(elapsed, 2)
+        }))
         return {
             "research_results": result,
             "current_step": "research_done"

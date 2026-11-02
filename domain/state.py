@@ -7,3 +7,4 @@ class PipelineState(TypedDict):
     final_report: Optional[str]         # output del Escritor
     current_step: str                   # en qué paso está el pipeline
     errors: List[str]                   # errores acumulados
+    trace_id:str                        # ID de rastreo para el pipeline

@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # Tu aplicación de Agentes
+  app:
+    build: .
+    container_name: orchesttrai-app
+    volumes:
+      - .:/app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - OLLAMA_HOST=http://host.docker.internal:11434 # Si usas Ollama en tu PC
+    depends_on:
+      - redis
+    # Si luego montas una API con FastAPI, descomenta el puerto:
+    # ports:
+    #   - "8000:8000"
+
+  # Redis para el Caching Semántico
+  redis:
+    image: redis:7-alpine
+    container_name: orchesttrai-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  # (Opcional) Postgres si usas PGVector para Memoria a largo plazo
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: orchesttrai-postgres
+    environment:
+      POSTGRES_USER: agent
+      POSTGRES_PASSWORD: agent123
+      POSTGRES_DB: orchesttrai
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  redis_data:
+  postgres_data:

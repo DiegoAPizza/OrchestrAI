@@ -1,0 +1,10 @@
+langgraph
+langgraph-checkpoint-sqlite
+langchain
+langchain-ollama
+langchain-core
+sentence-transformers
+redis
+numpy
+pydantic
+ollama
